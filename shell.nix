@@ -3,7 +3,6 @@
 with pkgs;
 
 mkShell {
-  name = "go-dev";
   buildInputs = [
     go
     zsh

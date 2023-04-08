@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 )
 
 var (
@@ -22,11 +23,11 @@ var (
 
 func parseFlags() error {
 	flag.Parse()
-	fmt.Println(flag.Args())
-	fmt.Println(flag.NFlag())
-	fmt.Println(flag.NArg())
-	if *searchStr == "" || *path == "" {
-		return errors.New("args cannot be empty")
+	if *searchStr == "" && *path != "" {
+		return errors.New("searchStr cannott be empty!")
+	}
+	if *path == "" && *searchStr != "" {
+		return errors.New("path cannot be empty!")
 	}
 	return nil
 }
@@ -36,4 +37,26 @@ func main() {
 		log.Fatalf("Error parsing command line flags: %v", err)
 	}
 	fmt.Println(*searchStr, *path)
+	getAllFiles()
+}
+
+func getAllFiles() (string, error) {
+	f, err := os.Open(*path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	fInfo, err := f.Stat()
+	if err != nil {
+		return "", err
+	}
+	if fInfo.IsDir() {
+		dirEntry, err := f.ReadDir(-1)
+		if err != nil {
+			return "", err
+		}
+		fmt.Println(len(dirEntry))
+		return *path, nil
+	}
+	return *path, nil
 }
